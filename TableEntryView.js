@@ -9,7 +9,7 @@ import {
 
 import GridView from 'react-native-gridview';
 
-const itemsPerRow = 10;
+const itemsPerRow = 12;
 
 
 const data = Array(100)
@@ -23,12 +23,40 @@ for (let i = 0; i < data.length; i) {
   i = endIndex;
 }
 
+const tables=12;
 
+
+
+const headings=[]
+headings.push([]);
+for(let i=0;i<tables;i++){
+  headings[0].push("Table "+i);
+}
+
+const subheadings=[]
+subheadings.push([]);
+
+for(let i=0;i<tables*2;i++){
+  if(i%2==0)
+  subheadings[0].push(" Group A ");
+else
+  subheadings[0].push(" Group B ");
+}
 
 
 const dataSource = new GridView.DataSource({
   rowHasChanged: (r1, r2) => r1 !== r2,
 }).cloneWithRows(randomData);
+
+
+const headingSource=new GridView.DataSource({
+    rowHasChanged: (r1, r2) => r1 !== r2,
+}).cloneWithRows(headings);
+
+const subheadingSource=new GridView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2,
+}).cloneWithRows(subheadings);
+
 
 export default class TableEntryView extends Component{
 
@@ -37,20 +65,40 @@ render(){
 console.log(randomData);
 
 	return(
-		<View style={{flex:1,padding:6,flexDirection:'row'}}>
+		<View style={{flex:1,padding:6}}>
 
-<ScrollView showsHorizontalScrollIndicator={true} horizontal={true}>
+<ScrollView showsHorizontalScrollIndicator={true} horizontal={true} vertical={true} showsVerticalScrollIndicator={true}>
 
+<View>
+<View>
  <GridView
-      data={data}
-      dataSource={dataSource}
+      data={headings}
+      dataSource={headingSource}
       itemsPerRow={itemsPerRow}
       renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
         return (
-        	<Cell/>
+        	<TitleCell data={item}/>
         );
       }}
     ></GridView>
+</View>
+
+<View>
+     <GridView
+      data={subheadings}
+      dataSource={subheadingSource}
+      itemsPerRow={itemsPerRow}
+      renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
+        return (
+          <SubHeadingCell data={item}/>
+        );
+      }}
+    ></GridView>
+
+
+    </View>
+    </View>
+
 </ScrollView>
 			
 
@@ -86,13 +134,74 @@ class Cell extends Component{
 }
 
 
+
+class TitleCell extends Component{
+
+constructor(props){
+
+    super(props);
+  }
+  render(){
+
+
+    return(
+
+      <View style={styles.headingCell}>  
+      <Text>{this.props.data}</Text>
+      </View>
+
+        )
+  }
+
+}
+
+
+class SubHeadingCell extends Component{
+
+  constructor(props){
+
+    super(props);
+    console.log("Sub Titles is ",this.props);
+
+  }
+  render(){
+
+
+    return(
+
+      <View style={styles.subheadingCell}>  
+           <Text>{this.props.data}</Text>
+
+      </View>
+
+        )
+  }
+
+}
+
 const styles = StyleSheet.create({
   cell:{
-  	width:70,height:30,marginLeft:4,backgroundColor:'white',marginTop:4,marginBottom:4,borderRadius: 4,
+  	width:70,height:30,marginLeft:4,backgroundColor:'white',borderRadius: 4,
     borderWidth:1,
     borderColor: '#000000',
     alignItems:'center',
     justifyContent:'center'
+  },
+  headingCell:{
+  width:125,height:30,marginLeft:4,backgroundColor:'white',borderRadius: 4,
+    borderWidth:1,
+    borderColor: '#000000',
+    alignItems:'center',
+    justifyContent:'center'
+
+  },
+  subheadingCell:{
+  width:63,height:30,marginLeft:1,backgroundColor:'white',borderRadius: 4,
+    borderWidth:1,
+    borderColor: '#000000',
+    alignItems:'center',
+    justifyContent:'center',
+
   }
 });
 
