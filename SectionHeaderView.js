@@ -18,24 +18,37 @@ var food = [
 ];
 
 
+import firebase from 'firebase';
+
+const API_KEY='AIzaSyDU2kEs5p-wnstlymlR1EGqwpk9JBsdohw';
+const APP_NAME='williamcareymedical';
+
+
+const config={
+  apiKey:API_KEY,
+  authDomain:'williamcareymedical.firebaseapp.com',
+  databaseURL:'https://williamcareymedical.firebaseio.com',
+  storageBucket:"gs://williamcareymedical.appspot.com"
+}
+
 const ds=new ListView.DataSource({
 				 rowHasChanged: (r1, r2) => r1 !== r2,
         sectionHeaderHasChanged: (s1, s2) => s1 !== s2
 			})
 
 
-function convertFoodArrayToMap() {
-  var foodCategoryMap = {}; // Create the blank map
-  food.forEach(function(foodItem) {
-    if (!foodCategoryMap[foodItem.category]) {
-      foodCategoryMap[foodItem.category] = [];
+function convertFoodArrayToMap(sourceArray) {
+  var organCategoryMap = {}; // Create the blank map
+  sourceArray.forEach(function(organItem) {
+    if (!organCategoryMap[organItem.category]) {
+      organCategoryMap[organItem.category] = [];
     }
     
-    foodCategoryMap[foodItem.category].push(foodItem);
+    organCategoryMap[organItem.category].push(organItem);
      
   });
   
-  return foodCategoryMap;
+  return organCategoryMap;
   
 }
 
@@ -47,12 +60,56 @@ export default class SectionHeaderView extends Component{
 
 		super(props);
 		this.state={
-			        dataSource: ds.cloneWithRowsAndSections(convertFoodArrayToMap())
+          organs:[]
 		}
 		this.renderRow=this.renderRow.bind(this);
 		this.renderSectionHeader=this.renderSectionHeader.bind(this);
+    this.getOrgansRow=this.getOrgansRow.bind(this);
+
+
+//console.log(convertFoodArrayToMap());
+
+    //firebase data capture stuffy 
+    this.getOrgansRow();
 	}
 
+
+
+getOrgansRow(){
+
+firebase.initializeApp(config);
+let organsEntryRef=firebase.database().ref('structures');
+
+let root=this;
+
+organsEntryRef.on("value",function(snapshot){
+let organEntry=snapshot.val();
+let key;
+
+let studyOrgans=[];
+for(var name in snapshot.val()){
+  //console.log("Parent",name);
+  let childs=snapshot.val()[name];
+  for(var childname in childs){
+
+    //console.log("Child ",childname);
+    studyOrgans.push({name:childname,category:name});
+  }
+
+}
+
+//Now update the state 
+
+console.log(studyOrgans);
+
+
+console.log("Changing State ");
+
+root.setState({organs:studyOrgans});
+
+})
+
+}
 
 	renderRow(foodItem){
 		 return (
@@ -87,7 +144,7 @@ export default class SectionHeaderView extends Component{
 		return(
 				<View style={{flex:1,marginTop:6}}>
 <ListView
-            dataSource={this.state.dataSource}
+            dataSource={ds.cloneWithRowsAndSections(convertFoodArrayToMap(this.state.organs))}
             renderRow={this.renderRow}
             renderSectionHeader={this.renderSectionHeader}
           ></ListView>
