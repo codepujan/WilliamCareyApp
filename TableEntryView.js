@@ -12,16 +12,19 @@ import GridView from 'react-native-gridview';
 const itemsPerRow = 10;
 
 
-const data = Array(20)
+const data = Array(100)
   .fill(null)
   .map((item, index) => index + 1);
 
 const randomData = [];
 for (let i = 0; i < data.length; i) {
   const endIndex = Math.max(Math.round(Math.random() * itemsPerRow), 1) + i;
-  randomData.push(data.slice(i, endIndex));
+  randomData.push(data.slice(0, 10));
   i = endIndex;
 }
+
+
+
 
 const dataSource = new GridView.DataSource({
   rowHasChanged: (r1, r2) => r1 !== r2,
@@ -30,6 +33,8 @@ const dataSource = new GridView.DataSource({
 export default class TableEntryView extends Component{
 
 render(){
+
+console.log(randomData);
 
 	return(
 		<View style={{flex:1,padding:6,flexDirection:'row'}}>
