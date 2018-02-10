@@ -9,6 +9,7 @@ import {
   Image
 } from 'react-native';
 
+import GridView from 'react-native-gridview';
 
 var food = [
   {name: "Lettuce", category: "Vegetable"}, 
@@ -53,6 +54,21 @@ function convertFoodArrayToMap(sourceArray) {
 }
 
 
+const tables=12;
+const itemsPerRow = 12;
+
+const itemsValue=[]
+itemsValue.push([]);
+
+for(let i=0;i<tables*2;i++){
+  itemsValue[0].push("...");
+}
+
+const valueSource = new GridView.DataSource({
+  rowHasChanged: (r1, r2) => r1 !== r2,
+}).cloneWithRows(itemsValue);
+
+
 export default class SectionHeaderView extends Component{
 
 
@@ -67,9 +83,7 @@ export default class SectionHeaderView extends Component{
     this.getOrgansRow=this.getOrgansRow.bind(this);
 
 
-//console.log(convertFoodArrayToMap());
 
-    //firebase data capture stuffy 
     this.getOrgansRow();
 	}
 
@@ -111,10 +125,24 @@ root.setState({organs:studyOrgans});
 
 }
 
-	renderRow(foodItem){
-		 return (
-      	<View style={{margin:4}}>
-      <Text style={{fontSize:13}}>{foodItem.name}</Text>
+	renderRow(organItem){
+          return (
+        <View style={{margin:4,flexDirection:'row'}}>
+      <Text style={{fontSize:13}} numberOfLines={1}>{organItem.name}</Text>
+      <View>
+       <GridView
+      data={itemsValue}
+      dataSource={valueSource}
+      itemsPerRow={itemsPerRow}
+      style={{width:2000,height:35,marginLeft:4}}
+      renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
+        return (
+          <ValueCell data={item}/>
+        );
+      }}
+    ></GridView>
+      </View>
+
       </View>
     )
 
@@ -124,14 +152,14 @@ root.setState({organs:studyOrgans});
 		return (
 			<View style={{borderRadius: 2,
     borderWidth:1,
-    borderColor: '#000000'}}>
-		<View style={{flex:1,flexDirection:'row',width:100}}>
+    borderColor: '#000000',width:150}}>
+		<View style={{flex:1,flexDirection:'row',width:50}}>
 		 <Image
 		 style={{width:20,height:20}}
           source={require('./resources/more.png')}
         ></Image>
 
-    <Text style={{fontWeight: "500",marginLeft:4}}>{category}</Text>
+    <Text style={{fontWeight: "500",marginLeft:4}} numberOfLines={1}>{category}</Text>
     </View>
     </View>
   )
@@ -142,7 +170,7 @@ root.setState({organs:studyOrgans});
 	render(){
 
 		return(
-				<View style={{flex:1,marginTop:6}}>
+				<View style={{flex:1,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
 <ListView
             dataSource={ds.cloneWithRowsAndSections(convertFoodArrayToMap(this.state.organs))}
             renderRow={this.renderRow}
@@ -154,3 +182,55 @@ root.setState({organs:studyOrgans});
 
 	}
 }
+
+
+class ValueCell extends Component{
+
+  constructor(props){
+
+    super(props);
+
+  }
+  render(){
+
+    console.log("Rendering Value Cell ");
+    return(
+
+      <View style={styles.cell}>  
+          <TextInput
+          style={{height: 20,width:65 ,textAlign:'center'}}
+          placeholder="..."
+        ></TextInput>
+
+      </View>
+
+        )
+  }
+}
+
+const styles = StyleSheet.create({
+  cell:{
+    width:63,height:30,backgroundColor:'white',borderRadius: 4,
+    borderWidth:1,
+    borderColor: '#000000',
+    alignItems:'center',
+    justifyContent:'center'
+  },
+  headingCell:{
+  width:125,height:30,marginLeft:1,backgroundColor:'white',borderRadius: 4,
+    borderWidth:1,
+    borderColor: '#000000',
+    alignItems:'center',
+    justifyContent:'center'
+
+  },
+  subheadingCell:{
+  width:63,height:30,marginLeft:1,backgroundColor:'white',borderRadius: 4,
+    borderWidth:1,
+    borderColor: '#000000',
+    alignItems:'center',
+    justifyContent:'center',
+
+  }
+});
+
