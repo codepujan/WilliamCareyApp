@@ -78,7 +78,6 @@ export default class SectionHeaderView extends Component{
 		this.state={
           organs:[]
 		}
-		this.renderRow=this.renderRow.bind(this);
 		this.renderSectionHeader=this.renderSectionHeader.bind(this);
     this.getOrgansRow=this.getOrgansRow.bind(this);
 
@@ -114,10 +113,7 @@ for(var name in snapshot.val()){
 
 //Now update the state 
 
-console.log(studyOrgans);
 
-
-console.log("Changing State ");
 
 root.setState({organs:studyOrgans});
 
@@ -125,28 +121,7 @@ root.setState({organs:studyOrgans});
 
 }
 
-	renderRow(organItem){
-          return (
-        <View style={{margin:4,flexDirection:'row'}}>
-      <Text style={{fontSize:13}} numberOfLines={1}>{organItem.name}</Text>
-      <View>
-       <GridView
-      data={itemsValue}
-      dataSource={valueSource}
-      itemsPerRow={itemsPerRow}
-      style={{width:2000,height:35,marginLeft:4}}
-      renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
-        return (
-          <ValueCell data={item}/>
-        );
-      }}
-    ></GridView>
-      </View>
 
-      </View>
-    )
-
-	}
 
 	renderSectionHeader(sectionData,category){
 		return (
@@ -173,7 +148,7 @@ root.setState({organs:studyOrgans});
 				<View style={{flex:1,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
 <ListView
             dataSource={ds.cloneWithRowsAndSections(convertFoodArrayToMap(this.state.organs))}
-            renderRow={this.renderRow}
+            renderRow={(rowData) => <OrgansRow organItem={rowData}/>}
             renderSectionHeader={this.renderSectionHeader}
           ></ListView>
 
@@ -183,6 +158,85 @@ root.setState({organs:studyOrgans});
 	}
 }
 
+
+
+class OrgansRow extends Component{
+
+
+  constructor(props){
+    super(props);
+    //Download data from firebase 
+
+
+    this.state={
+      dataList:itemsValue
+    }
+    this.dataSource=new GridView.DataSource({
+  rowHasChanged: (r1, r2) => r1 !== r2,
+}).cloneWithRows(itemsValue);
+
+    this.fetchFireBase=this.fetchFireBase.bind(this);
+//}
+
+}
+
+componentDidMount(){
+      this.fetchFireBase();
+
+}
+fetchFireBase(){
+
+let dataEntryRef=firebase.database().ref('record').child(this.props.organItem.name);
+    const root=this;
+
+//if(this.props.organItem.name=='Intercondylar fossa'){
+dataEntryRef.on("value",function(snapshot){
+let records=[];
+records.push([]);
+for(var name in snapshot.val()){
+  //console.log("Parent",name);
+   console.log(snapshot.val()[name].table)
+   console.log(snapshot.val()[name].value)
+   records[0].push(snapshot.val()[name].value);
+
+}
+
+
+  //root.setState({dataList:records});
+
+
+  })
+
+
+
+}
+
+  render(){
+
+this.dataSource=new GridView.DataSource({
+  rowHasChanged: (r1, r2) => r1 !== r2,
+}).cloneWithRows(this.state.dataList)
+      return (
+        <View style={{margin:4,flexDirection:'row'}}>
+      <Text style={{fontSize:13}} numberOfLines={1}>{this.props.organItem.name}</Text>
+      <View>
+       <GridView
+      data={this.state.dataList}
+      dataSource={this.dataSource}
+      itemsPerRow={itemsPerRow}
+      style={{width:2000,height:35,marginLeft:4}}
+      renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
+        return (
+          <ValueCell data={item}/>
+        );
+      }}
+    ></GridView>
+      </View>
+
+      </View>
+    )
+  }
+}
 
 class ValueCell extends Component{
 
