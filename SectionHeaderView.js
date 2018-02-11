@@ -6,10 +6,13 @@ import {
   TextInput,
   ScrollView,
   ListView,
-  Image
+  Image,
+  TouchableHighlight,
+  Dimensions
 } from 'react-native';
 
 import GridView from 'react-native-gridview';
+import { Button } from 'react-native';
 
 var food = [
   {name: "Lettuce", category: "Vegetable"}, 
@@ -84,7 +87,55 @@ export default class SectionHeaderView extends Component{
 
 
     this.getOrgansRow();
+
+    this.changesList=[]
+
+    this.saveRecentChanges=this.saveRecentChanges.bind(this);
+    this.clearRecentChanges=this.clearRecentChanges.bind(this);
+
+
 	}
+
+saveRecentChanges(){
+
+  console.log("Changes List",this.changesList);
+
+
+
+  for(let i=0;i<this.changesList.length;i++){
+
+
+let organ=this.changesList[i].organ;
+let value=this.changesList[i].value;
+let key=this.changesList[i].key;
+
+    let dataUpdateRef=firebase.database().ref('record').child(organ);
+
+    dataUpdateRef.child(key).update({
+      value:value
+    },function(error){
+
+
+      if(error)
+        console.log("Update error",error);
+      else
+        console.log("Update succceded");
+
+    })
+
+
+
+
+  }
+
+}
+
+
+clearRecentChanges(){
+
+this.changesList=[]; // clear the changeList 
+
+}
 
 
 
@@ -145,12 +196,29 @@ root.setState({organs:studyOrgans});
 	render(){
 
 		return(
+
+      <View>
+  
+
+<View style={{width:Dimensions.get('window').width,flexDirection:'row'}}>
+     <TouchableHighlight style={styles.cancelButton} onPress={this.clearRecentChanges} underlayColor='#99d9f4'>
+          <Text style={styles.buttonText}>Cancel</Text>
+        </TouchableHighlight>
+
+
+
+   <TouchableHighlight style={styles.button} onPress={this.saveRecentChanges} underlayColor='#99d9f4'>
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableHighlight>
+</View>
+
 				<View style={{flex:1,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
 <ListView
             dataSource={ds.cloneWithRowsAndSections(convertFoodArrayToMap(this.state.organs))}
-            renderRow={(rowData) => <OrgansRow organItem={rowData}/>}
+            renderRow={(rowData) => <OrgansRow organItem={rowData} changesList={this.changesList}/>}
             renderSectionHeader={this.renderSectionHeader}
           ></ListView>
+</View>
 
 				</View>
 			);
@@ -169,7 +237,7 @@ class OrgansRow extends Component{
 
 
     this.state={
-      dataList:itemsValue
+      dataList:[]
     }
     this.dataSource=new GridView.DataSource({
   rowHasChanged: (r1, r2) => r1 !== r2,
@@ -177,6 +245,8 @@ class OrgansRow extends Component{
 
     this.fetchFireBase=this.fetchFireBase.bind(this);
 //}
+
+this.keys=[]
 
 }
 
@@ -193,16 +263,22 @@ let dataEntryRef=firebase.database().ref('record').child(this.props.organItem.na
 dataEntryRef.on("value",function(snapshot){
 let records=[];
 records.push([]);
-for(var name in snapshot.val()){
-  //console.log("Parent",name);
-   console.log(snapshot.val()[name].table)
-   console.log(snapshot.val()[name].value)
-   records[0].push(snapshot.val()[name].value);
 
+//for(let i=0;i<24;i++)
+//records[0].push("0");
+
+for(var name in snapshot.val()){
+  
+
+
+root.keys.push(name);
+records[0].push(String(snapshot.val()[name].value));
 }
 
 
-  //root.setState({dataList:records});
+console.log(root.props.organItem.name);
+
+  root.setState({dataList:records});
 
 
   })
@@ -212,7 +288,6 @@ for(var name in snapshot.val()){
 }
 
   render(){
-
 this.dataSource=new GridView.DataSource({
   rowHasChanged: (r1, r2) => r1 !== r2,
 }).cloneWithRows(this.state.dataList)
@@ -227,7 +302,7 @@ this.dataSource=new GridView.DataSource({
       style={{width:2000,height:35,marginLeft:4}}
       renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
         return (
-          <ValueCell data={item}/>
+          <ValueCell data={item} changesList={this.props.changesList} organ={this.props.organItem.name} keyIndex={this.keys[itemIndex]}/>
         );
       }}
     ></GridView>
@@ -243,17 +318,22 @@ class ValueCell extends Component{
   constructor(props){
 
     super(props);
-
+  // console.log(this.props.keyIndex)
+   //changesList
+   this.state={
+    text:this.props.data
+   }
   }
   render(){
 
-    console.log("Rendering Value Cell ");
     return(
 
       <View style={styles.cell}>  
           <TextInput
           style={{height: 20,width:65 ,textAlign:'center'}}
-          placeholder="..."
+          value={this.state.text}
+          onEndEditing={()=>this.props.changesList.push({key:this.props.keyIndex,value:this.state.text,organ:this.props.organ})}
+          onChangeText={(text)=>this.setState({text:text})}
         ></TextInput>
 
       </View>
@@ -284,6 +364,42 @@ const styles = StyleSheet.create({
     borderColor: '#000000',
     alignItems:'center',
     justifyContent:'center',
+
+  },
+  buttonText: {
+    fontSize: 12,
+    color: 'white',
+    alignSelf: 'center'
+  },
+  button: {
+    height: 20,
+    width:60,
+    backgroundColor: '#48BBEC',
+    borderColor: '#48BBEC',
+    borderWidth: 1,
+    borderRadius: 4,
+    marginBottom: 10,
+    alignSelf: 'flex-end',
+    justifyContent: 'center',
+    marginTop:4,
+    marginBottom:4,
+    marginLeft:4,
+    marginRight:4
+  },
+  cancelButton:{
+    height: 20,
+    width:60,
+    backgroundColor: '#47041f',
+    borderColor: '#47041f',
+    borderWidth: 1,
+    borderRadius: 4,
+    marginBottom: 10,
+    alignSelf: 'flex-start',
+    justifyContent: 'center',
+    marginTop:4,
+    marginBottom:4,
+    marginLeft:4,
+    marginRight:4
 
   }
 });
