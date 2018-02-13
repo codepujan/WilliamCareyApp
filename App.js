@@ -22,13 +22,13 @@ const instructions = Platform.select({
 type Props = {};
 
 import TableEntryView from './TableEntryView';
-import SectionHeaderView from './SectionHeaderView';
+import SortedSelectionView from './SortedSelectionView';
 
 export default class App extends Component<Props> {
   render() {
     return (
       <View style={styles.container}>
-        <SectionHeaderView/>
+        <SortedSelectionView/>
 
       </View>
     );
