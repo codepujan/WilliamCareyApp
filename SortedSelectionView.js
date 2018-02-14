@@ -72,7 +72,7 @@ const itemsPerRow = 12;
 
 
 
-const averageCellWidth=65;
+const averageCellWidth=70;
 
 
 
