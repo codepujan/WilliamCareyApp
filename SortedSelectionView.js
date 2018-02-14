@@ -407,6 +407,8 @@ this.teamTables=[];
 }
 
 componentDidMount(){
+
+        this.keys=[];
       this.fetchFireBase(this.props.tablesFilter[0]);
 
 }
@@ -414,6 +416,8 @@ componentDidMount(){
 componentWillReceiveProps(newProps){
 
 
+
+this.keys=[];
   this.fetchFireBase(newProps.tablesFilter);
  
 
@@ -421,10 +425,38 @@ componentWillReceiveProps(newProps){
 
 fetchFireBase(table){
 
-this.teamTables=this.state.tableFilter;
 
 let dataEntryRef=firebase.database().ref('record').child(this.props.organItem.name);
     const root=this;
+
+
+if(this.props.organItem.name=='gracillis muscle'){
+
+Alert.alert(
+  'Zeroth',
+  String(table[0]),
+  [
+    {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+    {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+    {text: 'OK', onPress: () => console.log('OK Pressed')},
+  ],
+  { cancelable: false }
+)
+
+
+Alert.alert(
+  'First ',
+ String(table[1]),
+  [
+    {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
+    {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+    {text: 'OK', onPress: () => console.log('OK Pressed')},
+  ],
+  { cancelable: false }
+)
+
+}
+
 
 dataEntryRef.on("value",function(snapshot){
 let records=[];
