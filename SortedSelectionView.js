@@ -8,7 +8,8 @@ import {
   ListView,
   Image,
   TouchableHighlight,
-  Dimensions
+  Dimensions,
+  Alert
 } from 'react-native';
 
 import GridView from 'react-native-gridview';
@@ -398,20 +399,27 @@ class OrgansRow extends Component{
     }
     
     this.fetchFireBase=this.fetchFireBase.bind(this);
-//}
 
 this.keys=[]
- //this.teamTables=["T1A","T1B","T2A","T2B","T3A","T3B","T4A","T4B","T5A","T5B","T6A","T6B","T7A","T7B","T8A","T8B","T9A","T9B","T10A","T10B","T11A","T11B","T12A","T12B"];
 
 this.teamTables=[];
 
 }
 
 componentDidMount(){
-      this.fetchFireBase();
+      this.fetchFireBase(this.props.tablesFilter[0]);
 
 }
-fetchFireBase(){
+
+componentWillReceiveProps(newProps){
+
+
+  this.fetchFireBase(newProps.tablesFilter);
+ 
+
+}
+
+fetchFireBase(table){
 
 this.teamTables=this.state.tableFilter;
 
@@ -423,18 +431,14 @@ let records=[];
 records.push([]);
 
 
-
-//console.log("Table Filter is ",root.state.tableFilter);
-
+ 
 for(var name in snapshot.val()){
   
 
-for(let i=0;i<root.teamTables.length;i++){
+for(let i=0;i<table.length;i++){
   
-  console.log(snapshot.val()[name].table);
-  console.log(root.teamTables[i]);
 
-  if(snapshot.val()[name].table==root.teamTables[i])
+  if(snapshot.val()[name].table==table[i])
     {
       root.keys.push(name);
 records[0].push(String(snapshot.val()[name].value));
