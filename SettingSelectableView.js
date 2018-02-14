@@ -8,7 +8,8 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
-  ListView
+  ListView,
+  Alert
 } from 'react-native';
 
 
@@ -39,8 +40,17 @@ this.refinedArray=[];
 let index=0;
 
 for(let item of refinedSet){
+
+for(let selectedflag of this.props.alreadySelected){
+  if(selectedflag==item){
+    this.refinedArray.push({index:index,name:item,selected:true});
+    return;
+  }
+}
+
 this.refinedArray.push({index:index,name:item,selected:false});
 index=index+1;
+
 }
 
 this.state={
@@ -58,19 +68,32 @@ changeSelected(index){
 
 
 let newValues=this.refinedArray;
-let selection=[];
 let exportSelection=this.state.selected;
 
 for(var i=0;i<newValues.length;i++){
 	if(i==index){
-		newValues[i]['selected']=true;
-		selection.push(newValues[i]);
-    exportSelection.push(newValues[i]);
+    if(newValues[i]['selected']){
+		newValues[i]['selected']=false;
+
+    //Splicing the array 
+    for(let i=0;i<exportSelection.length;i++){
+      if(exportSelection[i].name==newValues[i]['name']){
+            exportSelection.splice(i,1);
+      }
+    }
+  }
+  else
+  {
+    newValues[i]['selected']=true;
+  exportSelection.push(newValues[i]);
+
+  }
+  //Now ,what to do for selections and no selections 
+		//selection.push(newValues[i]);
   }
 }
 
 
-console.log("selected ",exportSelection);
 
 this.setState({selected:exportSelection,dataSource: ds.cloneWithRows(newValues)})
 

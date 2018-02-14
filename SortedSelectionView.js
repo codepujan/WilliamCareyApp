@@ -93,7 +93,8 @@ export default class SectionHeaderView extends Component{
         organFilters:[],
         tableFilters:[allTableFilters],
         isTableModalVisible:false,
-        tableModalTitle:'Table Filter '
+        tableModalTitle:'Table Filter ',
+        alreadySelected:[]
 
 		}
 		this.renderSectionHeader=this.renderSectionHeader.bind(this);
@@ -163,7 +164,7 @@ getSettingsModal(){
           <Text style={{alignSelf:'center',color:'black',fontWeight:'bold',fontSize:16}}>
           {this.state.settingsModalTitle}
           </Text>
-          <SettingsView  optionsArray={this.state.entireOrgans} applySettings={(value)=>{
+          <SettingsView  optionsArray={this.state.entireOrgans}  alreadySelected={this.state.alreadySelected} applySettings={(value)=>{
 
             let newOptions=[];
 
@@ -173,7 +174,7 @@ getSettingsModal(){
 
             console.log("Changing State ",newOptions);
 
-            this.setState({organFilters:newOptions,isSettingsModalVisible:false,organs:[]},(prev,props)=>{
+            this.setState({organFilters:newOptions,isSettingsModalVisible:false,organs:[],alreadySelected:newOptions},(prev,props)=>{
                           this.getOrgansRow();
 
             })
@@ -513,6 +514,13 @@ class ValueCell extends Component{
    this.state={
     text:this.props.data
    }
+  }
+
+
+  componentWillReceiveProps(nextProps){
+
+    this.setState({text:nextProps.data});
+    
   }
   render(){
 
