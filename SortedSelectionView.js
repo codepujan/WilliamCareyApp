@@ -72,6 +72,9 @@ const itemsPerRow = 12;
 
 
 
+const averageCellWidth=65;
+
+
 
 const allTableFilters=["T1A","T1B","T2A","T2B","T3A","T3B","T4A","T4B","T5A","T5B","T6A","T6B","T7A","T7B","T8A","T8B","T9A","T9B","T10A","T10B","T11A","T11B","T12A","T12B"];
 
@@ -395,7 +398,8 @@ class OrgansRow extends Component{
 
     this.state={
       dataList:[],
-      tableFilter:this.props.tablesFilter
+      tableFilter:this.props.tablesFilter,
+      gridWidthCount:0
     }
     
     this.fetchFireBase=this.fetchFireBase.bind(this);
@@ -432,28 +436,6 @@ let dataEntryRef=firebase.database().ref('record').child(this.props.organItem.na
 
 if(this.props.organItem.name=='gracillis muscle'){
 
-Alert.alert(
-  'Zeroth',
-  String(table[0]),
-  [
-    {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-    {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-    {text: 'OK', onPress: () => console.log('OK Pressed')},
-  ],
-  { cancelable: false }
-)
-
-
-Alert.alert(
-  'First ',
- String(table[1]),
-  [
-    {text: 'Ask me later', onPress: () => console.log('Ask me later pressed')},
-    {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
-    {text: 'OK', onPress: () => console.log('OK Pressed')},
-  ],
-  { cancelable: false }
-)
 
 }
 
@@ -461,7 +443,7 @@ Alert.alert(
 dataEntryRef.on("value",function(snapshot){
 let records=[];
 records.push([]);
-
+let gridCount=0;
 
  
 for(var name in snapshot.val()){
@@ -474,6 +456,8 @@ for(let i=0;i<table.length;i++){
     {
       root.keys.push(name);
 records[0].push(String(snapshot.val()[name].value));
+gridCount=gridCount+1;
+
     }
 }
 
@@ -482,7 +466,7 @@ records[0].push(String(snapshot.val()[name].value));
 
 }
 
-  root.setState({dataList:records});
+  root.setState({dataList:records,gridWidthCount:gridCount});
 
 
   })
@@ -492,6 +476,10 @@ records[0].push(String(snapshot.val()[name].value));
 }
 
   render(){
+
+
+
+
 this.dataSource=new GridView.DataSource({
   rowHasChanged: (r1, r2) => r1 !== r2,
 }).cloneWithRows(this.state.dataList)
@@ -503,7 +491,7 @@ this.dataSource=new GridView.DataSource({
       data={this.state.dataList}
       dataSource={this.dataSource}
       itemsPerRow={itemsPerRow}
-      style={{width:2000,height:35,marginLeft:4}}
+      style={{width:averageCellWidth*this.state.gridWidthCount,height:35,marginLeft:4}}
       renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
         return (
           <ValueCell data={item} changesList={this.props.changesList} organ={this.props.organItem.name} keyIndex={this.keys[itemIndex]}/>
