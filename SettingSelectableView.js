@@ -23,6 +23,8 @@ import ActionButton from 'react-native-action-button';
 export default class SettingsSelectableView extends Component{
 
 
+
+
 constructor(props)
 {
 super(props);
@@ -39,23 +41,34 @@ let refinedSet=new Set(categories);
 this.refinedArray=[];
 let index=0;
 
+
+let selectedArray=[];
+
 for(let item of refinedSet){
+  let foundFlag=false;
 
 for(let selectedflag of this.props.alreadySelected){
   if(selectedflag==item){
     this.refinedArray.push({index:index,name:item,selected:true});
-    return;
+    selectedArray.push({index:index,name:item,selected:true});
+    foundFlag=true;
   }
 }
-
+if(!foundFlag)
 this.refinedArray.push({index:index,name:item,selected:false});
+
 index=index+1;
 
 }
 
+
+
+//also need to change the selected array too 
+
+
 this.state={
 	      dataSource: ds.cloneWithRows(this.refinedArray),
-        selected:[]
+        selected:selectedArray
 }
 
 
@@ -76,9 +89,16 @@ for(var i=0;i<newValues.length;i++){
 		newValues[i]['selected']=false;
 
     //Splicing the array 
-    for(let i=0;i<exportSelection.length;i++){
-      if(exportSelection[i].name==newValues[i]['name']){
-            exportSelection.splice(i,1);
+    for(let j=0;j<exportSelection.length;j++){
+
+    
+      console.log("Export Array ",exportSelection[j].name);
+
+      console.log("Source Array ",newValues[i]['name']);
+
+      if(exportSelection[j].name==newValues[i]['name']){
+         
+            exportSelection.splice(j,1);
       }
     }
   }
@@ -93,6 +113,9 @@ for(var i=0;i<newValues.length;i++){
   }
 }
 
+
+
+console.log(exportSelection);
 
 
 this.setState({selected:exportSelection,dataSource: ds.cloneWithRows(newValues)})
