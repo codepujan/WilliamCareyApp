@@ -19,7 +19,7 @@ import ActionButton from 'react-native-action-button';
     const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
 
-export default class SettingsSelectableView extends Component{
+export default class TableSettingsView extends Component{
 
 
 constructor(props)
@@ -28,20 +28,19 @@ super(props);
 
 
 
-let categories=[];
-for(let i=0;i<this.props.optionsArray.length;i++)
-categories.push(this.props.optionsArray[i]["category"]);
-
-
-let refinedSet=new Set(categories);
 
 this.refinedArray=[];
 let index=0;
 
-for(let item of refinedSet){
+for(let item of this.props.optionsArray){
 this.refinedArray.push({index:index,name:item,selected:false});
 index=index+1;
 }
+
+
+
+console.log(this.refinedArray);
+
 
 this.state={
 	      dataSource: ds.cloneWithRows(this.refinedArray),

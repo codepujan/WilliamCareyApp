@@ -9,7 +9,8 @@ import {
   Platform,
   StyleSheet,
   Text,
-  View
+  View,
+  NavigatorIOS
 } from 'react-native';
 
 const instructions = Platform.select({
@@ -23,11 +24,13 @@ type Props = {};
 
 import TableEntryView from './TableEntryView';
 import SortedSelectionView from './SortedSelectionView';
+import EntryDashboardView from './EntryDashboard';
+
 
 export default class App extends Component<Props> {
   render() {
     return (
-      <View style={styles.container}>
+         <View style={styles.container}>
         <SortedSelectionView/>
 
       </View>

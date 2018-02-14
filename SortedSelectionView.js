@@ -14,6 +14,8 @@ import {
 import GridView from 'react-native-gridview';
 import { Button } from 'react-native';
 import SettingsView from './SettingSelectableView';
+import TableSettingsView from './TablesSelectableView';
+
 
 var food = [
   {name: "Lettuce", category: "Vegetable"}, 
@@ -35,6 +37,7 @@ const config={
   databaseURL:'https://williamcareymedical.firebaseio.com',
   storageBucket:"gs://williamcareymedical.appspot.com"
 }
+firebase.initializeApp(config);
 
 
 import Modal from 'react-native-modal'
@@ -68,6 +71,9 @@ const itemsPerRow = 12;
 
 
 
+
+const allTableFilters=["T1A","T1B","T2A","T2B","T3A","T3B","T4A","T4B","T5A","T5B","T6A","T6B","T7A","T7B","T8A","T8B","T9A","T9B","T10A","T10B","T11A","T11B","T12A","T12B"];
+
 export default class SectionHeaderView extends Component{
 
 
@@ -79,7 +85,11 @@ export default class SectionHeaderView extends Component{
           entireOrgans:[],
         isSettingsModalVisible:false,
         settingsModalTitle:'Organs Filter ',
-        activeFilter:'organs'
+        activeFilter:'organs',
+        organFilters:[],
+        tableFilters:[allTableFilters],
+        isTableModalVisible:false,
+        tableModalTitle:'Table Filter '
 
 		}
 		this.renderSectionHeader=this.renderSectionHeader.bind(this);
@@ -94,25 +104,75 @@ export default class SectionHeaderView extends Component{
     this.saveRecentChanges=this.saveRecentChanges.bind(this);
     this.clearRecentChanges=this.clearRecentChanges.bind(this);
     this.getSettingsModal=this.getSettingsModal.bind(this);
-
- this.teamTables=["T1A","T1B","T2A","T2B","T3A","T3B","T4A","T4B","T5A","T5B","T6A","T6B","T7A","T7B","T8A","T8B","T9A","T9B","T10A","T10B","T11A","T11B","T12A","T12B"];
+    this.getTablesModal=this.getTablesModal.bind(this);
 
 	}
 
 
+
+
+getTablesModal(){
+
+
+ if(this.state.isTableModalVisible){
+
+    return(
+        <View style={{flex:1,marginTop:10,width:Dimensions.get('window').width}}>
+          <Modal isVisible={true} backdropOpacity={1.0} backdropColor="white" supportedOrientations={['portrait', 'landscape']}>
+          <Text style={{alignSelf:'center',color:'black',fontWeight:'bold',fontSize:16}}>
+          {this.state.tableModalTitle}
+          </Text>
+          <TableSettingsView  optionsArray={allTableFilters} applySettings={(value)=>{
+
+            let newOptions=[];
+
+            for(let i=0;i<value.length;i++)
+              newOptions.push(value[i].name);
+
+
+            console.log("Changing State ",newOptions);
+
+            this.setState({
+              tableFilters:newOptions,isTableModalVisible:false},(prev,props)=>{
+                          this.getOrgansRow(); //because Organs Row contains stuff for table filtering also 
+
+            })
+
+
+          }}/>
+          </Modal>
+        </View>
+      )
+
+  }
+
+
+}
 
 getSettingsModal(){
 
  if(this.state.isSettingsModalVisible){
 
     return(
-        <View style={{flex:1}}>
-          <Modal isVisible={true} backdropOpacity={1.0} backdropColor="white">
+        <View style={{flex:1,marginTop:10,width:Dimensions.get('window').width}}>
+          <Modal isVisible={true} backdropOpacity={1.0} backdropColor="white" supportedOrientations={['portrait', 'landscape']}>
           <Text style={{alignSelf:'center',color:'black',fontWeight:'bold',fontSize:16}}>
           {this.state.settingsModalTitle}
           </Text>
-          <SettingsView  optionsArray={this.state.activeFilter=='organs'?this.state.entireOrgans:this.teamTables} applySettings={(settingselection)=>{
-            this.setState({isSettingsModalVisible:false})
+          <SettingsView  optionsArray={this.state.entireOrgans} applySettings={(value)=>{
+
+            let newOptions=[];
+
+            for(let i=0;i<value.length;i++)
+              newOptions.push(value[i].name);
+
+
+            console.log("Changing State ",newOptions);
+
+            this.setState({organFilters:newOptions,isSettingsModalVisible:false,organs:[]},(prev,props)=>{
+                          this.getOrgansRow();
+
+            })
           }}/>
           </Modal>
         </View>
@@ -166,7 +226,6 @@ this.changesList=[]; // clear the changeList
 
 getOrgansRow(){
 
-firebase.initializeApp(config);
 let organsEntryRef=firebase.database().ref('structures');
 
 let root=this;
@@ -179,13 +238,33 @@ let selectionFilters=['Points of muscle insertion','femur']
 
 let studyOrgans=[];
 let entireOrgans=[];
+
+
+//No Selection filter : normal case 
+
+console.log("Organ Filters ",root.state.organFilters);
+
+if(root.state.organFilters.length==0){
+
+for(var name in snapshot.val()){
+  let childs=snapshot.val()[name];
+   for(var childname in childs){
+      studyOrgans.push({name:childname,category:name});
+      entireOrgans.push({name:childname,category:name});
+    }
+
+  }
+
+}else{
 for(var name in snapshot.val()){
   //console.log("Parent",name);
   let childs=snapshot.val()[name];
 
 
-    for(let i=0;i<selectionFilters.length;i++){
-     if(name==selectionFilters[i]){
+
+
+    for(let i=0;i<root.state.organFilters.length;i++){
+     if(name==root.state.organFilters[i]){
 
   for(var childname in childs){
       studyOrgans.push({name:childname,category:name});
@@ -203,6 +282,7 @@ for(var name in snapshot.val()){
 
 }
 
+}//end of parameterized 
 //Now update the state 
 
 
@@ -219,14 +299,14 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 		return (
 			<View style={{borderRadius: 2,
     borderWidth:1,
-    borderColor: '#000000',width:150}}>
+    borderColor: '#000000',width:130}}>
 		<View style={{flex:1,flexDirection:'row',width:50}}>
 		 <Image
 		 style={{width:20,height:20}}
           source={require('./resources/more.png')}
         ></Image>
 
-    <Text style={{fontWeight: "500",marginLeft:4}} numberOfLines={1}>{category}</Text>
+    <Text style={{fontWeight: "300",marginLeft:4,width:100,color:'blue'}} numberOfLines={1}>{category}</Text>
     </View>
     </View>
   )
@@ -251,6 +331,8 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
   {this.getSettingsModal()}
 
 
+  {this.getTablesModal()}
+
      <TouchableHighlight style={styles.cancelButton} onPress={this.clearRecentChanges} underlayColor='#99d9f4'>
           <Text style={styles.buttonText}>Cancel</Text>
         </TouchableHighlight>
@@ -263,10 +345,24 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 
 
 <TouchableHighlight onPress={()=>{this.setState({isSettingsModalVisible:true})}}>
+<View style={{flexDirection:'row',marginTop:4}}>
+<Text style={{alignSelf:'center',textAlign:'center',fontWeight:'bold',fontSize:12}}> Filter Organs : </Text>
 <Image
      source={require('./resources/settings.png')}
-          style={{width:25,height:25,alignSelf:'center',padding:4}}
+          style={{width:25,height:25,alignSelf:'center',padding:4,marginLeft:4,marginRight:4}}
     ></Image>
+</View>
+</TouchableHighlight>
+
+
+<TouchableHighlight onPress={()=>{this.setState({isTableModalVisible:true})}}>
+<View style={{flexDirection:'row',marginTop:4}}>
+<Text style={{alignSelf:'center',textAlign:'center',fontWeight:'bold',fontSize:12}}> Filter Tables : </Text>
+<Image
+     source={require('./resources/settings.png')}
+          style={{width:25,height:25,alignSelf:'center',padding:4,marginLeft:4,marginRight:4}}
+    ></Image>
+</View>
 </TouchableHighlight>
 
 
@@ -275,7 +371,7 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 				<View style={{flex:1,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
 <ListView
             dataSource={ds.cloneWithRowsAndSections(convertFoodArrayToMap(this.state.organs))}
-            renderRow={(rowData) => <OrgansRow organItem={rowData} changesList={this.changesList}/>}
+            renderRow={(rowData) => <OrgansRow organItem={rowData} changesList={this.changesList} tablesFilter={this.state.tableFilters}/>}
             renderSectionHeader={this.renderSectionHeader}
           ></ListView>
 </View>
@@ -297,15 +393,17 @@ class OrgansRow extends Component{
 
 
     this.state={
-      dataList:[]
+      dataList:[],
+      tableFilter:this.props.tablesFilter
     }
     
     this.fetchFireBase=this.fetchFireBase.bind(this);
 //}
 
 this.keys=[]
+ //this.teamTables=["T1A","T1B","T2A","T2B","T3A","T3B","T4A","T4B","T5A","T5B","T6A","T6B","T7A","T7B","T8A","T8B","T9A","T9B","T10A","T10B","T11A","T11B","T12A","T12B"];
 
-this.tableFilter=['T1A','T1B','T2A'];
+this.teamTables=[];
 
 }
 
@@ -315,6 +413,8 @@ componentDidMount(){
 }
 fetchFireBase(){
 
+this.teamTables=this.state.tableFilter;
+
 let dataEntryRef=firebase.database().ref('record').child(this.props.organItem.name);
     const root=this;
 
@@ -322,11 +422,19 @@ dataEntryRef.on("value",function(snapshot){
 let records=[];
 records.push([]);
 
+
+
+//console.log("Table Filter is ",root.state.tableFilter);
+
 for(var name in snapshot.val()){
   
 
-for(let i=0;i<root.tableFilter.length;i++){
-  if(snapshot.val()[name].table==root.tableFilter[i])
+for(let i=0;i<root.teamTables.length;i++){
+  
+  console.log(snapshot.val()[name].table);
+  console.log(root.teamTables[i]);
+
+  if(snapshot.val()[name].table==root.teamTables[i])
     {
       root.keys.push(name);
 records[0].push(String(snapshot.val()[name].value));
@@ -352,8 +460,8 @@ this.dataSource=new GridView.DataSource({
   rowHasChanged: (r1, r2) => r1 !== r2,
 }).cloneWithRows(this.state.dataList)
       return (
-        <View style={{margin:4,flexDirection:'row'}}>
-      <Text style={{fontSize:13}} numberOfLines={1}>{this.props.organItem.name}</Text>
+        <View style={{marginTop:6,flexDirection:'row'}}>
+      <Text style={{fontSize:13,width:130}} numberOfLines={1}>{this.props.organItem.name}</Text>
       <View>
        <GridView
       data={this.state.dataList}
