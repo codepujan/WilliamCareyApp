@@ -45,6 +45,7 @@ import Modal from 'react-native-modal'
 
 
 
+
 const ds=new ListView.DataSource({
 				 rowHasChanged: (r1, r2) => r1 !== r2,
         sectionHeaderHasChanged: (s1, s2) => s1 !== s2
@@ -77,6 +78,23 @@ const averageCellWidth=70;
 
 
 const allTableFilters=["T1A","T1B","T2A","T2B","T3A","T3B","T4A","T4B","T5A","T5B","T6A","T6B","T7A","T7B","T8A","T8B","T9A","T9B","T10A","T10B","T11A","T11B","T12A","T12B"];
+
+
+const subheadings=[]
+subheadings.push([]);
+
+for(let i=0;i<tables*2;i++){
+
+  if(i%2==0)
+subheadings[0].push(" Group A ");
+else
+  subheadings[0].push(" Group B ");
+}
+
+const subheadingSource=new GridView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2,
+}).cloneWithRows(subheadings);
+
 
 export default class SectionHeaderView extends Component{
 
@@ -326,11 +344,13 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 
 		return(
 
+
+<ScrollView>
       <View>
   
 
 
-<View style={{width:Dimensions.get('window').width,flexDirection:'row'}}>
+<View style={{width:Dimensions.get('window').width,flexDirection:'row',justifyContent: 'space-between'}}>
 
 
   {this.getSettingsModal()}
@@ -343,10 +363,6 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
         </TouchableHighlight>
 
 
-
-   <TouchableHighlight style={styles.button} onPress={this.saveRecentChanges} underlayColor='#99d9f4'>
-          <Text style={styles.buttonText}>Save</Text>
-        </TouchableHighlight>
 
 
 <TouchableHighlight onPress={()=>{this.setState({isSettingsModalVisible:true})}}>
@@ -371,9 +387,19 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 </TouchableHighlight>
 
 
+
+   <TouchableHighlight style={styles.button} onPress={this.saveRecentChanges} underlayColor='#99d9f4'>
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableHighlight>
+
+
+
+</View>
+    <View style={{height:30,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
+      <TableHeadersView/>
 </View>
 
-				<View style={{flex:1,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
+<View style={{flex:1,marginTop:6,marginLeft:6,marginTop:10,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
 <ListView
             dataSource={ds.cloneWithRowsAndSections(convertFoodArrayToMap(this.state.organs))}
             renderRow={(rowData) => <OrgansRow organItem={rowData} changesList={this.changesList} tablesFilter={this.state.tableFilters}/>}
@@ -381,7 +407,11 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
           ></ListView>
 </View>
 
+
+				
 				</View>
+
+        </ScrollView>
 			);
 
 	}
@@ -506,6 +536,53 @@ this.dataSource=new GridView.DataSource({
   }
 }
 
+
+
+class TableHeadersView extends Component{
+
+
+
+  render(){
+
+
+console.log(subheadings);
+
+    return(
+              <View style={{marginTop:6,flexDirection:'row'}}>
+
+
+              <View style={{borderRadius: 2,
+    borderWidth:1,
+    borderColor: '#000000',width:130,height:25}}>
+    <View style={{flex:1,flexDirection:'row',width:50}}>
+ 
+
+    <Text style={{fontWeight: "100",marginLeft:4,width:100,color:'blue'}} numberOfLines={1}>{"Table Groups"}</Text>
+        <Image
+     style={{width:20,height:20}}
+          source={require('./resources/more.png')}
+        ></Image>
+    </View>
+    </View>
+
+           <View>
+       <GridView
+      data={subheadings}
+      dataSource={subheadingSource}
+      itemsPerRow={itemsPerRow}
+      style={{width:averageCellWidth*24,height:35,marginLeft:4}}
+      renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
+        return (
+          <ValueCell data={item}/>
+        );
+      }}
+    ></GridView>
+      </View>
+
+              </View>
+      )
+  }
+}
 class ValueCell extends Component{
 
   constructor(props){
