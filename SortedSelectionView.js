@@ -102,6 +102,12 @@ export default class SectionHeaderView extends Component{
 	constructor(props){
 
 		super(props);
+
+
+    let headerFilters=[];
+    headerFilters.push([]);
+    headerFilters[0]=allTableFilters;
+
 		this.state={
           organs:[],
           entireOrgans:[],
@@ -112,7 +118,8 @@ export default class SectionHeaderView extends Component{
         tableFilters:[allTableFilters],
         isTableModalVisible:false,
         tableModalTitle:'Table Filter ',
-        alreadySelected:[]
+        alreadySelected:[],
+        headerFilters:headerFilters
 
 		}
 		this.renderSectionHeader=this.renderSectionHeader.bind(this);
@@ -155,8 +162,12 @@ getTablesModal(){
 
             console.log("Changing State ",newOptions);
 
+             let headerFilters=[];
+           headerFilters.push([]);
+            headerFilters[0]=newOptions;
+
             this.setState({
-              tableFilters:newOptions,isTableModalVisible:false},(prev,props)=>{
+              tableFilters:newOptions,isTableModalVisible:false,headerFilters:headerFilters},(prev,props)=>{
                           this.getOrgansRow(); //because Organs Row contains stuff for table filtering also 
 
             })
@@ -342,6 +353,10 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 
 	render(){
 
+//headerFilters
+let headerDataSource=new GridView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2,
+}).cloneWithRows(this.state.headerFilters);
 		return(
 
 
@@ -396,7 +411,7 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 
 </View>
     <View style={{height:30,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
-      <TableHeadersView/>
+      <TableHeadersView dataSource={headerDataSource} data={this.state.headerFilters}/>
 </View>
 
 <View style={{flex:1,marginTop:6,marginLeft:6,marginTop:10,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
@@ -545,7 +560,6 @@ class TableHeadersView extends Component{
   render(){
 
 
-console.log(subheadings);
 
     return(
               <View style={{marginTop:6,flexDirection:'row'}}>
@@ -567,10 +581,10 @@ console.log(subheadings);
 
            <View>
        <GridView
-      data={subheadings}
-      dataSource={subheadingSource}
+      data={this.props.data}
+      dataSource={this.props.dataSource}
       itemsPerRow={itemsPerRow}
-      style={{width:averageCellWidth*24,height:35,marginLeft:4}}
+      style={{width:averageCellWidth*this.props.data[0].length,height:35,marginLeft:4}}
       renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
         return (
           <ValueCell data={item}/>
