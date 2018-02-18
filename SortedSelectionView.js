@@ -47,9 +47,9 @@ import Modal from 'react-native-modal'
 
 
 const ds=new ListView.DataSource({
-				 rowHasChanged: (r1, r2) => r1 !== r2,
+         rowHasChanged: (r1, r2) => r1 !== r2,
         sectionHeaderHasChanged: (s1, s2) => s1 !== s2
-			})
+      })
 
 
 function convertFoodArrayToMap(sourceArray) {
@@ -99,10 +99,16 @@ const subheadingSource=new GridView.DataSource({
 export default class SectionHeaderView extends Component{
 
 
-	constructor(props){
+  constructor(props){
 
-		super(props);
-		this.state={
+    super(props);
+
+
+    let headerFilters=[];
+    headerFilters.push([]);
+    headerFilters[0]=allTableFilters;
+
+    this.state={
           organs:[],
           entireOrgans:[],
         isSettingsModalVisible:false,
@@ -112,10 +118,11 @@ export default class SectionHeaderView extends Component{
         tableFilters:[allTableFilters],
         isTableModalVisible:false,
         tableModalTitle:'Table Filter ',
-        alreadySelected:[]
+        alreadySelected:[],
+        headerFilters:headerFilters
 
-		}
-		this.renderSectionHeader=this.renderSectionHeader.bind(this);
+    }
+    this.renderSectionHeader=this.renderSectionHeader.bind(this);
     this.getOrgansRow=this.getOrgansRow.bind(this);
 
 
@@ -129,7 +136,7 @@ export default class SectionHeaderView extends Component{
     this.getSettingsModal=this.getSettingsModal.bind(this);
     this.getTablesModal=this.getTablesModal.bind(this);
 
-	}
+  }
 
 
 
@@ -155,8 +162,12 @@ getTablesModal(){
 
             console.log("Changing State ",newOptions);
 
+             let headerFilters=[];
+           headerFilters.push([]);
+            headerFilters[0]=newOptions;
+
             this.setState({
-              tableFilters:newOptions,isTableModalVisible:false},(prev,props)=>{
+              tableFilters:newOptions,isTableModalVisible:false,headerFilters:headerFilters},(prev,props)=>{
                           this.getOrgansRow(); //because Organs Row contains stuff for table filtering also 
 
             })
@@ -235,6 +246,17 @@ let key=this.changesList[i].key;
 
 
   }
+
+
+  Alert.alert(
+  'Succesful',
+  'Updated Data Were Saved',
+  [
+    {text: 'OK', onPress: () => console.log('OK Pressed')},
+  ],
+  { cancelable: true }
+)
+
 
 }
 
@@ -318,14 +340,14 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 
 
 
-	renderSectionHeader(sectionData,category){
-		return (
-			<View style={{borderRadius: 2,
+  renderSectionHeader(sectionData,category){
+    return (
+      <View style={{borderRadius: 2,
     borderWidth:1,
     borderColor: '#000000',width:130}}>
-		<View style={{flex:1,flexDirection:'row',width:50}}>
-		 <Image
-		 style={{width:20,height:20}}
+    <View style={{flex:1,flexDirection:'row',width:50}}>
+     <Image
+     style={{width:20,height:20}}
           source={require('./resources/more.png')}
         ></Image>
 
@@ -335,14 +357,18 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
   )
 
 
-	}
+  }
 
 
 
 
-	render(){
+  render(){
 
-		return(
+//headerFilters
+let headerDataSource=new GridView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2,
+}).cloneWithRows(this.state.headerFilters);
+    return(
 
 
 <ScrollView>
@@ -396,7 +422,7 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 
 </View>
     <View style={{height:30,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
-      <TableHeadersView/>
+      <TableHeadersView dataSource={headerDataSource} data={this.state.headerFilters}  gridCount={this.state.gridWidthCount}/>
 </View>
 
 <View style={{flex:1,marginTop:6,marginLeft:6,marginTop:10,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
@@ -408,13 +434,13 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 </View>
 
 
-				
-				</View>
+        
+        </View>
 
         </ScrollView>
-			);
+      );
 
-	}
+  }
 }
 
 
@@ -542,10 +568,18 @@ class TableHeadersView extends Component{
 
 
 
+constructor(props){
+  super(props);
+  console.log("Grid Width Count",this.props.data[0].length);
+
+}
+componentWillReceiveProps(nextProps){
+    console.log("Grid Width Count",nextProps.data[0].length);
+
+}
   render(){
 
 
-console.log(subheadings);
 
     return(
               <View style={{marginTop:6,flexDirection:'row'}}>
@@ -567,10 +601,10 @@ console.log(subheadings);
 
            <View>
        <GridView
-      data={subheadings}
-      dataSource={subheadingSource}
+      data={this.props.data}
+      dataSource={this.props.dataSource}
       itemsPerRow={itemsPerRow}
-      style={{width:averageCellWidth*24,height:35,marginLeft:4}}
+      style={{width:averageCellWidth*this.props.data[0].length,height:35,marginLeft:4}}
       renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
         return (
           <ValueCell data={item}/>
@@ -604,9 +638,12 @@ class ValueCell extends Component{
     return(
 
       <View style={styles.cell}>  
-          <Text
-          style={{textAlign:'center'}}>{this.state.text}</Text>
-
+           <TextInput
+          style={{height: 20,width:65 ,textAlign:'center'}}
+          value={this.state.text}
+          onEndEditing={()=>this.props.changesList.push({key:this.props.keyIndex,value:this.state.text,organ:this.props.organ})}
+          onChangeText={(text)=>this.setState({text:text})}
+        ></TextInput>
       </View>
 
         )
@@ -674,4 +711,3 @@ const styles = StyleSheet.create({
 
   }
 });
-

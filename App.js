@@ -30,10 +30,14 @@ import EntryDashboardView from './EntryDashboard';
 export default class App extends Component<Props> {
   render() {
     return (
-         <View style={styles.container}>
-        <SortedSelectionView/>
-
-      </View>
+        
+         <NavigatorIOS
+        initialRoute={{
+          component: EntryDashboardView,
+          title: 'Dashboard',
+        }}
+style={{flex: 1}}
+        ></NavigatorIOS>
     );
   }
 }

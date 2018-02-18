@@ -34,7 +34,7 @@ export default class EntryDashboard extends Component{
           cardMaxElevation={2}
           cornerRadius={3}>
 
-          <View style={{width:100,height:200,justifyContent:'center',alignItems:'center'}}>
+          <View style={{width:100,height:70,justifyContent:'center',alignItems:'center'}}>
           
 		
 
@@ -49,6 +49,80 @@ export default class EntryDashboard extends Component{
         </TouchableHighlight>
           </View>
     </CardView>
+
+
+
+
+      <CardView
+          cardElevation={2}
+          cardMaxElevation={2}
+          cornerRadius={3}>
+
+          <View style={{width:100,height:70,justifyContent:'center',alignItems:'center'}}>
+          
+    
+
+          <TouchableHighlight style={styles.button} onPress={()=>{
+              this.props.navigator.push({
+                component:SortedSelectionView,
+                title:'Record Table',
+                passProps:{semestercode:'1'}
+              })
+            }} underlayColor='grey'>
+          <Text style={styles.buttonText}>Semester #2 </Text>
+        </TouchableHighlight>
+          </View>
+    </CardView>
+
+
+
+
+      <CardView
+          cardElevation={2}
+          cardMaxElevation={2}
+          cornerRadius={3}>
+
+          <View style={{width:100,height:70,justifyContent:'center',alignItems:'center'}}>
+          
+    
+
+          <TouchableHighlight style={styles.button} onPress={()=>{
+              this.props.navigator.push({
+                component:SortedSelectionView,
+                title:'Record Table',
+                passProps:{semestercode:'1'}
+              })
+            }} underlayColor='grey'>
+          <Text style={styles.buttonText}>Semester #3 </Text>
+        </TouchableHighlight>
+          </View>
+    </CardView>
+
+
+
+      <CardView
+          cardElevation={2}
+          cardMaxElevation={2}
+          cornerRadius={3}>
+
+          <View style={{width:100,height:70,justifyContent:'center',alignItems:'center'}}>
+          
+    
+
+          <TouchableHighlight style={styles.button} onPress={()=>{
+              this.props.navigator.push({
+                component:SortedSelectionView,
+                title:'Record Table',
+                passProps:{semestercode:'1'}
+              })
+            }} underlayColor='grey'>
+          <Text style={styles.buttonText}>Semester #4 </Text>
+        </TouchableHighlight>
+          </View>
+    </CardView>
+
+
+
     </View>
 			);
 
@@ -61,6 +135,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#F5FCFF',
+    marginTop:10
   },
   welcome: {
     fontSize: 20,
