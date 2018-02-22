@@ -9,7 +9,7 @@ import {
   Image,
   TouchableHighlight,
   Dimensions,
-  Alert
+  Alert,
 } from 'react-native';
 
 import GridView from 'react-native-gridview';
@@ -105,6 +105,7 @@ export default class SectionHeaderView extends Component{
         let headerFilters=[];
     headerFilters.push([]);
     headerFilters[0]=allTableFilters;
+    console.log(Dimensions.get('window').height);
 
 		this.state={
           organs:[],
@@ -368,7 +369,8 @@ let headerDataSource=new GridView.DataSource({
 }).cloneWithRows(this.state.headerFilters);
 
 return(
-<ScrollView>
+  <ScrollView horizontal={true} showsHorizontalScrollIndicator={true}>
+
       <View>
   
 
@@ -418,24 +420,26 @@ return(
 
 
 </View>
-    <View style={{flex:1,height:30,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
+<View style={{}}>
+    <View style={{marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
 
       <TableHeadersView dataSource={headerDataSource} data={this.state.headerFilters}/>
 </View>
 
-<View style={{flex:1,marginTop:6,marginLeft:6,marginTop:10,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
+<View style={{marginTop:6,marginLeft:6,marginTop:10,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
 <ListView
             dataSource={ds.cloneWithRowsAndSections(convertFoodArrayToMap(this.state.organs))}
             renderRow={(rowData) => <OrgansRow organItem={rowData} changesList={this.changesList} tablesFilter={this.state.tableFilters}/>}
             renderSectionHeader={this.renderSectionHeader}
           ></ListView>
 </View>
+</View>
 
 
         
         </View>
-
         </ScrollView>
+
       );
 
   }
