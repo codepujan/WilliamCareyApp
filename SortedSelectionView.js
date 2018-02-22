@@ -102,23 +102,11 @@ export default class SectionHeaderView extends Component{
   constructor(props){
 
     super(props);
-
-
-<<<<<<< HEAD
-=======
-		super(props);
-
-
->>>>>>> 23eab6959454135c9978ad968c17ae42952f300c
-    let headerFilters=[];
+        let headerFilters=[];
     headerFilters.push([]);
     headerFilters[0]=allTableFilters;
 
-<<<<<<< HEAD
-    this.state={
-=======
 		this.state={
->>>>>>> 23eab6959454135c9978ad968c17ae42952f300c
           organs:[],
           entireOrgans:[],
         isSettingsModalVisible:false,
@@ -378,13 +366,8 @@ root.setState({organs:studyOrgans,entireOrgans:entireOrgans});
 let headerDataSource=new GridView.DataSource({
       rowHasChanged: (r1, r2) => r1 !== r2,
 }).cloneWithRows(this.state.headerFilters);
-<<<<<<< HEAD
-    return(
-=======
-		return(
->>>>>>> 23eab6959454135c9978ad968c17ae42952f300c
 
-
+return(
 <ScrollView>
       <View>
   
@@ -435,12 +418,9 @@ let headerDataSource=new GridView.DataSource({
 
 
 </View>
-    <View style={{height:30,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
-<<<<<<< HEAD
-      <TableHeadersView dataSource={headerDataSource} data={this.state.headerFilters}  gridCount={this.state.gridWidthCount}/>
-=======
+    <View style={{flex:1,height:30,marginTop:6,marginLeft:6,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
+
       <TableHeadersView dataSource={headerDataSource} data={this.state.headerFilters}/>
->>>>>>> 23eab6959454135c9978ad968c17ae42952f300c
 </View>
 
 <View style={{flex:1,marginTop:6,marginLeft:6,marginTop:10,justifyContent:'flex-start',alignItems:'flex-start',alignSelf:'flex-start'}}>
@@ -622,7 +602,7 @@ componentWillReceiveProps(nextProps){
       data={this.props.data}
       dataSource={this.props.dataSource}
       itemsPerRow={itemsPerRow}
-      style={{width:averageCellWidth*this.props.data[0].length,height:35,marginLeft:4}}
+      style={{width:averageCellWidth*22,height:35,marginLeft:4}}
       renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
         return (
           <DataCell data={item}/>
