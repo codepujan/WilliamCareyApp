@@ -607,7 +607,7 @@ componentWillReceiveProps(nextProps){
       style={{width:averageCellWidth*this.props.data[0].length,height:35,marginLeft:4}}
       renderItem={(item, sectionID, rowID, itemIndex, itemID) => {
         return (
-          <ValueCell data={item}/>
+          <DataCell data={item}/>
         );
       }}
     ></GridView>
@@ -617,6 +617,7 @@ componentWillReceiveProps(nextProps){
       )
   }
 }
+
 class ValueCell extends Component{
 
   constructor(props){
@@ -649,6 +650,38 @@ class ValueCell extends Component{
         )
   }
 }
+
+class DataCell extends Component{
+
+  constructor(props){
+
+    super(props);
+   this.state={
+    text:this.props.data
+   }
+  }
+
+
+  componentWillReceiveProps(nextProps){
+
+    this.setState({text:nextProps.data});
+    
+  }
+  render(){
+
+    return(
+
+      <View style={styles.cell}>  
+           <Text
+          style={{height: 20,width:65 ,textAlign:'center'}}
+        >{this.state.text}</Text>
+      </View>
+
+        )
+  }
+}
+
+
 
 const styles = StyleSheet.create({
   cell:{
